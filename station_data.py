@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from ftplib import FTP
 import os
 import datetime
@@ -86,6 +88,18 @@ def get_daily(recent=True):
 def suggest_names(name, name2id):
     return [st for st in name2id.keys() if unicode(name,"utf8").lower() in st.lower()]
 
+def compare(user, data, epsilon=0.1):
+    if type(data) is int:
+        return user == data
+    elif type(data) is float:
+        return abs(user-data) < epsilon
+    elif type(data) is unicode:
+        return unicode(user,"utf8").lower() in data.lower()
+    elif type(data) is datetime.datetime:
+        return datetime.datetime.strptime(user,"%Y%m%d") == data
+
+def suggest_id(value, key, id2meta):
+    return [i for i, meta in id2meta.iteritems() if compare(value, meta[key])]
 
 def get_name(name2id):
     while True:

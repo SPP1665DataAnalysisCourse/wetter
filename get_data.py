@@ -5,6 +5,7 @@ import os
 import shutil
 
 fname = "tageswerte_KL_00044_akt.zip"
+
 if not os.path.exists(fname):
     fln, headers = urllib.urlretrieve('ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/recent/' + fname)
     shutil.copyfile(fln, fname)
@@ -36,7 +37,11 @@ for line in datalines[1:]:
     for idx, value in enumerate(linedata[:-1]):
         key = header[idx]
         if key not in ("Stations_ID", "Mess_Datum"):
-            daily[key] = float(value)
+            v = float(value)
+            if v == -999:
+                daily[key] = None
+            else:
+                daily[key] = v
         elif key == "Mess_Datum":
             date = value
 
@@ -55,6 +60,7 @@ import pylab
 
 datelabels = sorted(data.keys())
 
+pylab.figure()
 pylab.plot(timeseries["LUFTTEMPERATUR"])
 pylab.grid()
 pylab.xticks(range(len(datelabels))[::30], datelabels[::30], rotation=45)

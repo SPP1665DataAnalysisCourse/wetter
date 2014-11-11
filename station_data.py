@@ -1,5 +1,6 @@
 from ftplib import FTP
 import os
+import datetime
 
 def get_station_data(filename="/tmp/station_list.txt"):
     if not os.path.isfile(filename):
@@ -25,8 +26,8 @@ def get_station_data(filename="/tmp/station_list.txt"):
             else:
                 try:
                     st_id = int(line[0:11].strip())
-                    from_date = line[12:20].strip()
-                    to_date = line[21:29].strip()
+                    from_date = datetime.datetime.strptime(line[12:20].strip(),"%Y%m%d")
+                    to_date = datetime.datetime.strptime(line[21:29].strip(),"%Y%m%d")
                     height = int(line[32:44].strip())
                     latitude = float(line[46:57].strip())
                     longitude = float(line[58:66].strip())
@@ -116,11 +117,20 @@ def cli():
     print "Station name:", station_name
     print " - id:", station_id
     print " - height:", id2meta[station_id]['height']
+    print " - from time:", id2meta[station_id]['from_date']
+    print " - to time:", id2meta[station_id]['to_date']
     print " - latitude:", id2meta[station_id]['latitude']
     print " - longitude:", id2meta[station_id]['longitude']
     print " - federal state:", id2meta[station_id]['state']
-    print " - Recent file:", id2recent[station_id]
-    print " - History file:", id2hist[station_id]
+    if station_id in id2recent:
+        print " - Recent file:", id2recent[station_id]
+    else:
+        print " - No recent file found!"
+
+    if station_id in id2hist:
+        print " - History file:", id2hist[station_id]
+    else:
+        print " - No history file found!"
 
 
 if __name__ == '__main__':

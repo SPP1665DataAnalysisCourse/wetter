@@ -1,13 +1,5 @@
 from ftplib import FTP
-import csv
 import os
-
-
-def unicode_csv_reader(latin1_data, **kwargs):
-    csv_reader = csv.reader(latin1_data, **kwargs)
-    for row in csv_reader:
-        yield [unicode(cell, "latin-1") for cell in row]
-
 
 def get_station_data(filename="/tmp/station_list.txt"):
     if not os.path.isfile(filename):
@@ -21,22 +13,39 @@ def get_station_data(filename="/tmp/station_list.txt"):
     name2id = {}
     id2meta = {}
     first = True
+    second = True
     # parse csv file
-    with open(filename, 'r') as csvfile:
-        spamreader = unicode_csv_reader(csvfile, delimiter=';')
-        for row in spamreader:
+    with open(filename, 'r') as file:
+        for line in file:
             # first row contains header info
             if first:
                 first = False
+            elif second:
+                second = False
             else:
-                name2id[row[4].strip()] = int(row[0].strip())
-                id2meta[int(row[id_idx].strip())] = {}
-                id2meta[int(row[id_idx].strip())]['id'] = int(row[id_idx].strip())
-                id2meta[int(row[id_idx].strip())]['height'] = row[1].strip()
-                id2meta[int(row[id_idx].strip())]['latitude'] = row[2].strip()
-                id2meta[int(row[id_idx].strip())]['longitude'] = row[3].strip()
-                id2meta[int(row[id_idx].strip())]['name'] = row[4].strip()
-                id2meta[int(row[id_idx].strip())]['state'] = row[5].strip()
+                try:
+                    st_id = int(line[0:11].strip())
+                    from_date = line[12:20].strip()
+                    to_date = line[21:29].strip()
+                    height = int(line[32:44].strip())
+                    latitude = float(line[46:57].strip())
+                    longitude = float(line[58:66].strip())
+                    name = unicode(line[67:107].strip(), "latin-1")
+                    state = unicode(line[108:].strip(), "latin-1")
+
+                    name2id[name] = st_id
+                    id2meta[st_id] = {}
+                    id2meta[st_id]['id'] = st_id
+                    id2meta[st_id]['from_date'] = from_date
+                    id2meta[st_id]['to_date'] = to_date
+                    id2meta[st_id]['height'] = height
+                    id2meta[st_id]['latitude'] = latitude
+                    id2meta[st_id]['longitude'] = longitude
+                    id2meta[st_id]['name'] = name
+                    id2meta[st_id]['state'] = state
+                    
+                except:
+                    continue
     return name2id, id2meta
 
 

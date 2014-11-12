@@ -73,7 +73,7 @@ def get_daily(recent=True):
         ftp.cwd(get_daily_hist_path())
 
     ls = []
-    ftp.retrlines('NLST', lambda l: ls.append(l))
+    ftp.retrlines('NLST', ls.append)
     id2file = {}
     id_idx = 2 if recent else 1
     for l in ls:

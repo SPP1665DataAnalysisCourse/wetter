@@ -16,7 +16,7 @@ def get_station_path():
 def get_dwd_domain():
     return "ftp-cdc.dwd.de"
 
-def get_station_data(filename="/tmp/station_list.txt"):
+def get_station_data(filename=os.environ['TMPDIR'] + "station_list.txt"):
     if not os.path.isfile(filename):
         # write stations_list_soil.txt into filename
         with open(filename,'wb') as file:

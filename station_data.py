@@ -3,6 +3,7 @@
 from ftplib import FTP
 import os
 import datetime
+import tempfile
 
 def get_daily_recent_path():
     return "/pub/CDC/observations_germany/climate/daily/kl/recent/"
@@ -16,7 +17,14 @@ def get_station_path():
 def get_dwd_domain():
     return "ftp-cdc.dwd.de"
 
-def get_station_data(filename=os.environ['TMPDIR'] + "station_list.txt"):
+def get_temp_dir():
+    # Get tmp directory of system
+    tmpdir = tempfile.gettempdir()
+    # Return tmp directory with trailing slash
+    return os.path.join(tmpdir, '')
+        
+    
+def get_station_data(filename=get_temp_dir() + "station_list.txt"):
     if not os.path.isfile(filename):
         # write stations_list_soil.txt into filename
         with open(filename,'wb') as file:
@@ -102,6 +110,7 @@ def suggest_id(value, key, id2meta):
     return [i for i, meta in id2meta.iteritems() if compare(value, meta[key])]
 
 def get_name(name2id):
+    reduced = False
     while True:
         name = raw_input("Enter station name: ")
         ns = suggest_names(name, name2id)
@@ -110,6 +119,10 @@ def get_name(name2id):
         elif len(ns) == 0:
             print "Nothing found. Repeat!"
         else:
+            for idx, elem in enumerate(ns):
+                if name.lower() == elem.lower():
+                    return ns[idx]
+            reduced = True
             print "Reduce selection: ",
             for n in ns:
                 print "'"+n+"'",

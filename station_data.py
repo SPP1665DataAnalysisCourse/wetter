@@ -110,7 +110,6 @@ def suggest_id(value, key, id2meta):
     return [i for i, meta in id2meta.iteritems() if compare(value, meta[key])]
 
 def get_name(name2id):
-    reduced = False
     while True:
         name = raw_input("Enter station name: ")
         ns = suggest_names(name, name2id)
@@ -119,10 +118,9 @@ def get_name(name2id):
         elif len(ns) == 0:
             print "Nothing found. Repeat!"
         else:
-            for idx, elem in enumerate(ns):
+            for elem in ns:
                 if name.lower() == elem.lower():
-                    return ns[idx]
-            reduced = True
+                    return elem
             print "Reduce selection: ",
             for n in ns:
                 print "'"+n+"'",

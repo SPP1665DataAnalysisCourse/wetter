@@ -5,9 +5,10 @@ import os
 import shutil
 
 fname = "tageswerte_KL_00044_akt.zip"
+url = "ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/recent/"
 
 if not os.path.exists(fname):
-    fln, headers = urllib.urlretrieve('ftp://ftp-cdc.dwd.de/pub/CDC/observations_germany/climate/daily/kl/recent/' + fname)
+    fln, headers = urllib.urlretrieve(url + fname)
     shutil.copyfile(fln, fname)
 
 datazip = zipfile.ZipFile(fname, 'r')

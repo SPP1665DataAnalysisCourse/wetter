@@ -5,19 +5,41 @@ import os
 import datetime
 import tempfile
 
+
 def get_daily_recent_path():
+    """
+    Helper function to return the path for the recent observations.
+    """
     return "/pub/CDC/observations_germany/climate/daily/kl/recent/"
 
+
 def get_daily_hist_path():
+    """
+    Helper function to return the path for the historical observations.
+    """
     return "/pub/CDC/observations_germany/climate/daily/kl/historical/"
 
+
 def get_station_path():
+    """
+    Helper function to return the absolute path of the file containing
+    the station names, ids and metadata.
+    """
     return "/pub/CDC/help/KL_Tageswerte_Beschreibung_Stationen.txt"
 
+
 def get_dwd_domain():
+    """
+    Helper function to return the domain name of the FTP server of
+    Deutscher Wetterdienst.
+    """
     return "ftp-cdc.dwd.de"
 
+
 def get_temp_dir():
+    """
+    Helper function to return the path for temporary files on the system.
+    """
     # Get tmp directory of system
     tmpdir = tempfile.gettempdir()
     # Return tmp directory with trailing slash
@@ -25,6 +47,22 @@ def get_temp_dir():
         
     
 def get_station_data(filename=get_temp_dir() + "station_list.txt"):
+    """
+    Return a dictionary that maps station names to numeric ids
+    (name2id) and a dictionary that contains the metadata for all
+    stations keyed with their ids (id2meta)
+
+    This function performs the following steps:
+      1. Download the station data file if it is here already.
+      2. Create empty dictionaries for the data
+      3. Parse each line in the station data file (except the first
+         line) into data fields and put them into the dictionaries
+      4. Return the dictionaries to the caller
+
+    Arguments:
+      filename - The name of the station data file.
+    """
+
     if not os.path.isfile(filename):
         # write stations_list_soil.txt into filename
         with open(filename,'wb') as file:
@@ -73,6 +111,11 @@ def get_station_data(filename=get_temp_dir() + "station_list.txt"):
 
 
 def get_daily(recent=True):
+    """
+    Return a dictionary providing a mapping between ids and filenames
+    for either recent or historical observation data.
+    """
+
     ftp = FTP(get_dwd_domain())
     ftp.login()
     if recent:
@@ -93,10 +136,32 @@ def get_daily(recent=True):
     ftp.quit()
     return id2file
 
+
 def suggest_names(name, name2id):
+    """
+    Return a list of all station names that contain a certain fragment
+    of a station name given.
+
+    Arguments:
+      name    - the fragment of the station name to search for.
+      name2id - The dictionary that contains the name to id map for
+                the stations
+    """
     return [st for st in name2id.keys() if unicode(name,"utf8").lower() in st.lower()]
 
+
 def compare(user, data, epsilon=0.1):
+    """
+    Helper function to compare data entered by the user and data in
+    the program. For floating point numbers, an epsilon can be defined
+    to provide a coarser search.
+
+    Arguments:
+      user    - The data provided by the user.
+      data    - The data in the program.
+      epsilon - How much can floation point numbers differ?
+    """
+
     if type(data) is int:
         return user == data
     elif type(data) is float:
@@ -106,10 +171,30 @@ def compare(user, data, epsilon=0.1):
     elif type(data) is datetime.datetime:
         return datetime.datetime.strptime(user,"%Y%m%d") == data
 
+
 def suggest_id(value, key, id2meta):
+    """
+    Return a list of station ids that fulfil a certain criterion based
+    on a search for a value for a certain key in a dictionary.
+
+    Arguments:
+      value - The value to search for in the data.
+      key - The key the value belongs to.
+      id2meta - The data dictionary to search in.
+    """
     return [i for i, meta in id2meta.iteritems() if compare(value, meta[key])]
 
+
 def get_name(name2id):
+    """Return a station name based on user entry. This function will
+    iterate until the selection is reduced to a single station
+    name. Before the selection is unique, it will iterate the prompt
+    together with a list of station names matching the user input.
+
+    Arguments:
+      name2id - A dictionary mapping station names to ids.
+    """
+
     while True:
         name = raw_input("Enter station name: ")
         ns = suggest_names(name, name2id)
@@ -126,7 +211,14 @@ def get_name(name2id):
                 print "'"+n+"'",
             print
 
+
 def cli():
+    """
+    A simple command line interface that uses the functions in this
+    module and prompts the user for a station name and prints out the
+    metadata for the station when it is uniquely defined.
+    """
+
     name2id, id2meta = get_station_data()
     id2recent = get_daily(recent=True)
     id2hist = get_daily(recent=False)
@@ -156,4 +248,8 @@ def cli():
 
 
 if __name__ == '__main__':
+    # This block is run if the script is called as a stand-alone
+    # program and not imported as a module. In the latter case,
+    # __name__ would be set to the name under which the file has been
+    # imported (usually the file name).
     cli()

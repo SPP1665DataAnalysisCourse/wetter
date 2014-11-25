@@ -159,7 +159,7 @@ def compare(user, data, epsilon=0.1):
     Arguments:
       user    - The data provided by the user.
       data    - The data in the program.
-      epsilon - How much can floation point numbers differ?
+      epsilon - How much can floating point numbers differ?
     """
 
     if type(data) is int:
@@ -174,7 +174,7 @@ def compare(user, data, epsilon=0.1):
 
 def suggest_id(value, key, id2meta):
     """
-    Return a list of station ids that fulfil a certain criterion based
+    Return a list of station ids that fulfill a certain criterion based
     on a search for a value for a certain key in a dictionary.
 
     Arguments:
